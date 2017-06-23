@@ -10,9 +10,7 @@ This code may only be used under the BSD style license found at https://github.c
 
   'use strict';
 
-  Valentin = Valentin || {};
-
-  const Valentin = {
+  window.Valentin = {
 
     request: function (options, fn) {
       let r = document.createElement('iron-request');
@@ -52,7 +50,7 @@ This code may only be used under the BSD style license found at https://github.c
 
 
 
-    toast = function (element, message, type) {
+    toast: function (element, message, type) {
       element.dispatchEvent(
         new CustomEvent('toast',
                         { detail: { text: message, type: type },
