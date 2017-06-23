@@ -1,0 +1,61 @@
+<link rel="import" href="/components/bower_components/iron-ajax/iron-request.html">
+
+<script>
+  (function () {
+    'use strict';
+    
+    const request = function (options, fn) {
+      
+      let r = document.createElement('iron-request');
+      r.completes.then(fn).catch(err => console.log(err));
+
+
+      let requestOptions = {
+        method: 'GET',
+        handleAs: 'json'
+      };
+      
+      switch (typeof options) {
+        case 'string':
+          requestOptions.url = options;
+          break;
+
+        case 'object':
+          requestOptions.url = options.url;
+          if (options.method === 'POST') {
+            requestOptions.method = 'POST';
+            requestOptions.headers = {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            };
+          }
+          if (options.body) {
+            requestOptions.body = options.body;
+          }
+          break;
+      }
+
+      if (options.handleAs) {
+        requestOptions.handleAs = options.handleAs;
+      }
+
+      r.send(requestOptions);
+    }
+
+
+    
+    const toast = function (element, message, type) {
+      element.dispatchEvent(
+        new CustomEvent('toast',
+                        { detail: { text: message, type: type },
+                          bubbles: true, composed: true}));
+    }
+
+
+    if (!window.Valentin) {
+      window.Valentin = {};
+    }
+    
+    Valentin.request = request;
+    Valentin.toast = toast;
+  })();
+</script>

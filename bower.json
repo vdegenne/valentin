@@ -1,0 +1,13 @@
+{
+  "name": "valentin",
+  "description": "Tools to make web-apps",
+  "main": "valentin.html",
+  "authors": [
+    "valentin degenne"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/vdegenne/valentin",
+  "dependencies": {
+    "iron-ajax": "PolymerElements/iron-ajax#^2.0.2"
+  }
+}

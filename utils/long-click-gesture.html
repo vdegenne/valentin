@@ -1,0 +1,44 @@
+<link rel="import" href="/components/bower_components/polymer/lib/utils/gestures.html">
+
+<script>
+  (function () {
+
+    Polymer.Gestures.register({
+      name: 'long-click',
+      touchAction: 'none',
+      deps: ['mousedown', 'mouseup'],
+      flow: {
+        start: ['mousedown'],
+        end: ['mouseup']
+      },
+      emits: ['long-click'],
+      info: {
+        countdown: 0.7,
+        timeout: null
+      },
+
+      reset: function () {
+
+        let scrollFn = (e => {
+          window.clearTimeout(this.info.timeout);
+          window.removeEventListener('scroll', scrollFn);
+        });
+        
+        window.addEventListener('scroll', scrollFn);
+      },
+
+      mousedown: function (e) {
+        let t = Polymer.Gestures._findOriginalTarget(e);
+        
+        this.info.timeout = window.setTimeout(function (e) {
+          Polymer.Gestures._fire(t, 'long-click', e);
+        }, this.info.countdown * 1000);
+      },
+
+      mouseup: function (e) {
+        window.clearTimeout(this.info.timeout);
+      }
+    });
+    
+  })();
+</script>
