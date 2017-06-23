@@ -1,11 +1,20 @@
-<link rel="import" href="/components/bower_components/iron-ajax/iron-request.html">
+<!--
+@license
+Copyright (c) 2017 Valentin Degenne. All rights reserved.
+This code may only be used under the BSD style license found at https://github.com/vdegenne/valentin/LICENSE.txt
+-->
+<link rel="import" href="../../../bower_components/iron-ajax/iron-request.html">
 
 <script>
-  (function () {
-    'use strict';
-    
-    const request = function (options, fn) {
-      
+(function () {
+
+  'use strict';
+
+  Valentin = Valentin || {};
+
+  const Valentin = {
+
+    request: function (options, fn) {
       let r = document.createElement('iron-request');
       r.completes.then(fn).catch(err => console.log(err));
 
@@ -39,23 +48,18 @@
       }
 
       r.send(requestOptions);
-    }
+    },
 
 
-    
-    const toast = function (element, message, type) {
+
+    toast = function (element, message, type) {
       element.dispatchEvent(
         new CustomEvent('toast',
                         { detail: { text: message, type: type },
                           bubbles: true, composed: true}));
     }
+  };
 
-
-    if (!window.Valentin) {
-      window.Valentin = {};
-    }
-    
-    Valentin.request = request;
-    Valentin.toast = toast;
-  })();
+  
+})();
 </script>

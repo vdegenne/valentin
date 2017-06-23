@@ -1,13 +1,19 @@
 {
   "name": "valentin",
-  "description": "Tools to make web-apps",
+  "description": "Tools to use with Polymer 2.0 to build web-apps.",
   "main": "valentin.html",
   "authors": [
     "valentin degenne"
   ],
-  "license": "MIT",
-  "homepage": "https://github.com/vdegenne/valentin",
+  "license": "http://github.com/vdegenne/valentin/LICENSE.txt",
+  "homepage": "http://github.com/vdegenne/valentin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vdegenne/valentin.git"
+  },
   "dependencies": {
-    "iron-ajax": "PolymerElements/iron-ajax#^2.0.2"
+    "polymer": "^2.0.1",
+    "iron-ajax": "PolymerElements/iron-ajax#^2.0.2",
+    "paper-toast": "PolymerElements/paper-toast#^2.0.0"
   }
 }

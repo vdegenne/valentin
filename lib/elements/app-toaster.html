@@ -1,0 +1,47 @@
+<!--
+@license
+Copyright (c) 2017 Valentin Degenne. All rights reserved.
+This code may only be used under the BSD style license found at https://github.com/vdegenne/valentin/LICENSE.txt
+-->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="app-toaster">
+  <template>
+    <slot></slot>
+
+    
+    <!-- TOAST -->
+    <style>
+      #toaster[error] {
+        --paper-toast-background-color: var(--google-red-500);
+        --paper-toast-color: #fff;
+      }      
+    </style>
+    <paper-toast id="toaster"></paper-toast>
+  </template>
+
+  <script>
+  class AppToaster extends Polymer.Element
+  {
+    static get is () { return 'app-toaster'; }
+
+    connectedCallback () {
+
+      this.addEventListener('toast', e => {
+        this.$.toaster.removeAttribute('error');
+        if (e.detail.type === 0) {
+          this.$.toaster.setAttribute('error', '');
+        }
+        
+        this.$.toaster.text = e.detail.text;
+        this.$.toaster.open();
+      });
+    }
+    
+  }
+
+  customElements.define(AppToaster.is, AppToaster);
+  </script>
+</dom-module>
