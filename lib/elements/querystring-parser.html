@@ -1,0 +1,35 @@
+<link rel="import" href="../../../polymer/polymer.html">
+<script>
+class QuerystringParser extends Polymer.Element
+{
+  static get is () { return 'querystring-parser'; }
+  static get properties () {
+    return {
+      args: {
+        type: Object,
+        value: function () { return {}; },
+        notify: true
+      }
+    }
+  }
+
+  connectedCallback () {
+    super.connectedCallback();
+    this.refreshArgs();
+  }
+
+  refreshArgs () {
+    let match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    this.args = {};
+    while (match = search.exec(query))
+       this.args[decode(match[1])] = decode(match[2]);
+  }
+
+}
+customElements.define('querystring-parser', QuerystringParser);
+</script>

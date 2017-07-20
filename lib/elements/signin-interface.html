@@ -1,0 +1,70 @@
+<link rel="import" href="../../../iron-form/iron-form.html">
+<link rel="import" href="../../../paper-input/paper-input.html">
+<link rel="import" href="../../../paper-card/paper-card.html">
+<link rel="import" href="../../../paper-button/paper-button.html">
+
+<dom-module id="signin-interface">
+  <template>
+    <style>
+      :host {
+        display: block;
+        width: 300px;
+      }
+      paper-card {
+        padding: 18px;
+        border: 1px solid #BDBDBD;
+        border-radius: 3px;
+      }
+      paper-button {
+        text-transform: lowercase;
+        background: #26C6DA;
+        color: white;
+        float: right;
+      }
+    </style>
+    <querystring-parser args="{{queryString}}"></querystring-parser>
+    <app-toaster id="toaster">
+      <paper-card>
+        <iron-form id="signin-form">
+          <form>
+            <paper-input type="text" name="username" label="username" required></paper-input>
+            <paper-input type="password" name="password" label="password" required></paper-input>
+            <button type="submit">send</button>
+          </form>
+        </iron-form>
+      </paper-card>
+    </app-toaster>
+  </template>
+  <script>
+    class SigninInterface extends Polymer.Element
+    {
+      static get is () { return 'signin-interface'; }
+
+      connectedCallback () {
+        super.connectedCallback();
+
+        this.$['signin-form'].addEventListener('iron-form-presubmit', e => {
+          e.preventDefault();
+
+          let options = {
+            url: '/login/verify',
+            method: 'POST',
+            body: this.$['signin-form'].serializeForm(),
+            handleAs: 'json'
+          };
+
+          Valentin.request(options, request => {
+            let feedback = request.response;
+
+            Valentin.toast(this.$.toaster, feedback.message, (feedback.success ? 1 : 0));
+
+            if (feedback.success) {
+              window.location.href = this.queryString.continue;
+            }
+          });
+        });
+      }
+    }
+    customElements.define(SigninInterface.is, SigninInterface);
+  </script>
+</dom-module>
