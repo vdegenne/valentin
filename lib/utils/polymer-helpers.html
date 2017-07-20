@@ -14,7 +14,10 @@ This code may only be used under the BSD style license found at https://github.c
 
     request: function (options, fn) {
       let r = document.createElement('iron-request');
-      r.completes.then(fn).catch(err => console.log(err));
+      r.completes.then(function (request) {
+        let feedback = request.response;
+        fn(request, feedback);
+      }).catch(err => console.log(err));
 
 
       let requestOptions = {

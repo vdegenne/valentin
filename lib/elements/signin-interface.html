@@ -2,34 +2,73 @@
 <link rel="import" href="../../../paper-input/paper-input.html">
 <link rel="import" href="../../../paper-card/paper-card.html">
 <link rel="import" href="../../../paper-button/paper-button.html">
+<link rel="import" href="../../../iron-flex-layout/iron-flex-layout.html">
 
 <dom-module id="signin-interface">
   <template>
     <style>
       :host {
         display: block;
-        width: 300px;
+        @apply --layout-fit;
+        @apply --layout-horizontal;
+        @apply --layout-center-center;
       }
       paper-card {
-        padding: 18px;
+        display: block;
+        padding: 7px;
         border: 1px solid #BDBDBD;
         border-radius: 3px;
+        min-width: 300px;
       }
-      paper-button {
-        text-transform: lowercase;
-        background: #26C6DA;
-        color: white;
-        float: right;
+      #hero {
+        text-align: center;
+        margin: -100px 0 15px 0;
+      }
+      #hero ::slotted(*) {
+        display: inline;
+        vertical-align: middle;
+      }
+      #hero ::slotted([slot=hero]) {
+        margin-right: 10px;
+      }
+      #hero ::slotted([slot=hero-title]) {
+        font-size: 2em;
+      }
+
+      #controls {
+        @apply --layout-flex;
+        @apply --layout-horizontal;
+        justify-content: space-between;
+        margin: 12px 0;
+      }
+      #controls paper-button {
+        background: var(--google-blue-500);
+        color: #fff;
+      }
+
+      ::slotted([slot=login-name]) {
+        padding: 5px 7px;
+      }
+
+      #signin-form {
+        margin: 0 20px;
       }
     </style>
     <querystring-parser args="{{queryString}}"></querystring-parser>
     <app-toaster id="toaster">
+      <div id="hero">
+        <slot name="hero"></slot><slot name="hero-title"></slot>
+      </div>
       <paper-card>
+        <slot name="login-name"></slot>
         <iron-form id="signin-form">
-          <form>
-            <paper-input type="text" name="username" label="username" required></paper-input>
-            <paper-input type="password" name="password" label="password" required></paper-input>
-            <button type="submit">send</button>
+          <form method="POST" action="/">
+            <paper-input type="text" name="username" label="username" required on-keypress="_checkForEnter"></paper-input>
+            <paper-input type="password" name="password" label="password" required on-keypress="_checkForEnter"></paper-input>
+            <div id="controls">
+              <div></div>
+              <paper-button onclick="_signinFormSubmit" raised>connect</paper-button>
+            </div>
           </form>
         </iron-form>
       </paper-card>
@@ -63,6 +102,16 @@
             }
           });
         });
+      }
+
+      _signinFormSubmit () {
+        this.$['signin-form'].submit();
+      }
+
+      _checkForEnter (e) {
+        if (e.charCode === 13) {
+          this._signinFormSubmit();
+        }
       }
     }
     customElements.define(SigninInterface.is, SigninInterface);
