@@ -3,16 +3,14 @@
 Copyright (c) 2017 Valentin Degenne. All rights reserved.
 This code may only be used under the BSD style license found at https://github.com/vdegenne/valentin/LICENSE.txt
 -->
-<link rel="import" href="../../../bower_components/iron-ajax/iron-request.html">
+<link rel="import" href="../../../iron-ajax/iron-request.html">
 
 <script>
 (function () {
 
   'use strict';
 
-  Valentin = Valentin || {};
-
-  const Valentin = {
+  window.Valentin = {
 
     request: function (options, fn) {
       let r = document.createElement('iron-request');
@@ -52,7 +50,7 @@ This code may only be used under the BSD style license found at https://github.c
 
 
 
-    toast = function (element, message, type) {
+    toast: function (element, message, type) {
       element.dispatchEvent(
         new CustomEvent('toast',
                         { detail: { text: message, type: type },
