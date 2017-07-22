@@ -12,7 +12,8 @@ This code may only be used under the BSD style license found at https://github.c
 
   window.Valentin = {
 
-    request: function (options, fn) {
+    request: function (optionsArg, fn)
+    {
       let r = document.createElement('iron-request');
       r.completes.then(function (request) {
         let feedback = request.response;
@@ -20,36 +21,48 @@ This code may only be used under the BSD style license found at https://github.c
       }).catch(err => console.log(err));
 
 
-      let requestOptions = {
+      let options = { /* with defaults */
         method: 'GET',
-        handleAs: 'json'
+        handleAs: 'json',
+        headers: {}
       };
-      
-      switch (typeof options) {
+
+      switch (typeof optionsArg)
+      {
         case 'string':
-          requestOptions.url = options;
-          break;
+        options.url = optionsArg;
+        break;
 
         case 'object':
-          requestOptions.url = options.url;
-          requestOptions.method = options.method;
-          if (options.method === 'POST') {
-            requestOptions.method = 'POST';
-            requestOptions.headers = {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            };
+        for (var o in optionsArg) {
+
+          if (o === 'headers') {
+            options[o] = options[o] || {};
+            for (var so in optionsArg[o]) {
+              options[o][so] = optionsArg[o][so]
+            }
+            continue;
           }
-          if (options.body) {
-            requestOptions.body = options.body;
-          }
-          break;
+          options[o] = optionsArg[o];
+        }
+
+        let newHeaders = Object.create(null);
+        for (var key in options.headers) {
+          newHeaders[key.toLowerCase()] = options.headers[key];
+        }
+        let headers = options.headers = newHeaders;
+
+        if (!headers['content-type']
+        && ['post', 'put'].indexOf(options.method.toLowerCase()) > -1
+        &&  !(options.body instanceof FormData))
+        {
+          options.headers['content-type'] = 'application/x-www-form-urlencoded';
+        }
+
+        break;
       }
 
-      if (options.handleAs) {
-        requestOptions.handleAs = options.handleAs;
-      }
-
-      r.send(requestOptions);
+      r.send(options);
     },
 
 
@@ -57,11 +70,11 @@ This code may only be used under the BSD style license found at https://github.c
     toast: function (element, message, type) {
       element.dispatchEvent(
         new CustomEvent('toast',
-                        { detail: { text: message, type: type },
-                          bubbles: true, composed: true}));
+        { detail: { text: message, type: type },
+        bubbles: true, composed: true})
+      )
     }
-  };
+  }
 
-  
 })();
 </script>
