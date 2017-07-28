@@ -9,17 +9,20 @@ This code may only be used under the BSD style license found at https://github.c
 
 <dom-module id="app-toaster">
    <template>
-      <slot></slot>
-
-
-      <!-- TOAST -->
       <style>
          #toaster[error] {
             --paper-toast-background-color: var(--google-red-500);
             --paper-toast-color: #fff;
          }
+         #toaster[success] {
+            --paper-toast-background-color: var(--google-green-500);
+            --paper-toast-color: #fff;
+         }
       </style>
+
+      <slot></slot>
       <paper-toast id="toaster"></paper-toast>
+
    </template>
 
    <script>
@@ -32,9 +35,13 @@ This code may only be used under the BSD style license found at https://github.c
            let out = '';
 
            this.$.toaster.removeAttribute('error');
-           if (!e.detail.success) {
-             this.$.toaster.setAttribute('error', '');
-             out += '<iron-icon icon="report" style="position:relative;left:-3px;"></iron-icon> ';
+           this.$.toaster.removeAttribute('success');
+
+           if (e.detail.success !== undefined) {
+               this.$.toaster.setAttribute(e.detail.success ? 'success' : 'error', '');
+               if (e.detail.success === false) {
+                 out += '<iron-icon icon="report" style="position:relative;left:-3px;"></iron-icon> ';
+               }
            }
 
            out += e.detail.text;
