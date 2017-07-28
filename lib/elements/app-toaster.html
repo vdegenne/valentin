@@ -5,42 +5,46 @@ This code may only be used under the BSD style license found at https://github.c
 -->
 <link rel="import" href="../../../paper-styles/paper-styles.html">
 <link rel="import" href="../../../paper-toast/paper-toast.html">
+<link rel="import" href="../../../iron-icons/iron-icons.html">
 
 <dom-module id="app-toaster">
-  <template>
-    <slot></slot>
+   <template>
+      <slot></slot>
 
-    
-    <!-- TOAST -->
-    <style>
-      #toaster[error] {
-        --paper-toast-background-color: var(--google-red-500);
-        --paper-toast-color: #fff;
-      }      
-    </style>
-    <paper-toast id="toaster"></paper-toast>
-  </template>
 
-  <script>
-    class AppToaster extends Polymer.Element
-    {
-    static get is () { return 'app-toaster'; }
+      <!-- TOAST -->
+      <style>
+         #toaster[error] {
+            --paper-toast-background-color: var(--google-red-500);
+            --paper-toast-color: #fff;
+         }
+      </style>
+      <paper-toast id="toaster"></paper-toast>
+   </template>
 
-    connectedCallback () {
+   <script>
+     class AppToaster extends Polymer.Element {
+       static get is () { return 'app-toaster'; }
 
-      this.addEventListener('toast', e => {
-        this.$.toaster.removeAttribute('error');
-        if (e.detail.type === 0) {
-          this.$.toaster.setAttribute('error', '');
-        }
-        
-        this.$.toaster.text = e.detail.text;
-        this.$.toaster.open();
-      });
-    }
-    
-  }
+       connectedCallback () {
 
-    customElements.define(AppToaster.is, AppToaster);
-  </script>
+         this.addEventListener('toast', e => {
+           let out = '';
+
+           this.$.toaster.removeAttribute('error');
+           if (!e.detail.success) {
+             this.$.toaster.setAttribute('error', '');
+             out += '<iron-icon icon="report" style="position:relative;left:-3px;"></iron-icon> ';
+           }
+
+           out += e.detail.text;
+           this.$.toaster.innerHTML = out;
+           this.$.toaster.open();
+         });
+       }
+
+     }
+
+     customElements.define(AppToaster.is, AppToaster);
+   </script>
 </dom-module>

@@ -1,3 +1,4 @@
+<link rel="import" href="../../valentin.html">
 <link rel="import" href="../../../iron-form/iron-form.html">
 <link rel="import" href="../../../paper-input/paper-input.html">
 <link rel="import" href="../../../paper-card/paper-card.html">
@@ -39,7 +40,7 @@
         @apply --layout-flex;
         @apply --layout-horizontal;
         justify-content: space-between;
-        margin: 12px 0;
+        margin: 20px 0;
       }
       #controls paper-button {
         background: var(--google-blue-500);
@@ -53,8 +54,17 @@
       #signin-form {
         margin: 0 20px;
       }
+
+       ::slotted([slot=lost]) {
+          display: inline-block;
+          line-height: 40px;
+          text-decoration: none;
+       }
     </style>
+
     <querystring-parser args="{{queryString}}"></querystring-parser>
+
+
     <app-toaster id="toaster">
       <div id="hero">
         <slot name="hero"></slot><slot name="hero-title"></slot>
@@ -66,8 +76,8 @@
             <paper-input type="text" name="username" label="username" required on-keypress="_checkForEnter"></paper-input>
             <paper-input type="password" name="password" label="password" required on-keypress="_checkForEnter"></paper-input>
             <div id="controls">
-              <div></div>
-              <paper-button onclick="_signinFormSubmit" raised>connect</paper-button>
+              <div><slot name="lost"></slot></div>
+              <paper-button on-click="_signinFormSubmit" raised>connect</paper-button>
             </div>
           </form>
         </iron-form>
@@ -78,24 +88,46 @@
     class SigninInterface extends Polymer.Element
     {
       static get is () { return 'signin-interface'; }
+      static get properties () {
+        return {
+          action: {
+            type: String,
+            value: '#',
+            reflectToAttribute: true
+          },
+
+          /**
+           * this property shouldn't be changed.
+           * It's just used by the demo to send
+           * a GET method request and get the
+           * fictive json response.
+           */
+
+          method: {
+            type: String,
+            value: 'POST',
+            readOnly: true
+          }
+        }
+      }
 
       connectedCallback () {
         super.connectedCallback();
 
-        this.$['signin-form'].addEventListener('iron-form-presubmit', e => {
+        let form = this.$['signin-form'];
+        form.addEventListener('iron-form-presubmit', e => {
           e.preventDefault();
 
           let options = {
-            url: '/login/verify',
-            method: 'POST',
-            body: this.$['signin-form'].serializeForm(),
+            url: this.action,
+            method: this.method,
+            body: form.serializeForm(),
             handleAs: 'json'
           };
 
-          Valentin.request(options, request => {
-            let feedback = request.response;
+          Valentin.request(options, (request, feedback) => {
 
-            Valentin.toast(this.$.toaster, feedback.message, (feedback.success ? 1 : 0));
+            Valentin.toast(this.$.toaster, feedback.message, feedback.success);
 
             if (feedback.success) {
               window.location.href = this.queryString.continue;

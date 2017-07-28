@@ -67,10 +67,10 @@ This code may only be used under the BSD style license found at https://github.c
 
 
 
-    toast: function (element, message, type) {
+    toast: function (element, message, success) {
       element.dispatchEvent(
         new CustomEvent('toast',
-        { detail: { text: message, type: type },
+        { detail: { text: message, success: success },
         bubbles: true, composed: true})
       )
     }
