@@ -1,5 +1,5 @@
 {
-  "name": "Valentin",
+  "name": "valentin",
   "description": "Tools to use with Polymer 2.0 to build web-apps.",
   "main": "valentin.html",
   "authors": [
@@ -19,6 +19,7 @@
     "iron-form": "PolymerElements/iron-form#^2.0.0",
     "paper-input": "PolymerElements/paper-input#^2.0.1",
     "paper-button": "PolymerElements/paper-button#^2.0.0",
-    "paper-card": "PolymerElements/paper-card#^2.0.0"
+    "paper-card": "PolymerElements/paper-card#^2.0.0",
+    "iron-icons": "PolymerElements/iron-icons#^2.0.1"
   }
 }

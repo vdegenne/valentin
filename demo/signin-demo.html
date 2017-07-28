@@ -1,0 +1,37 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2017 Valentin Degenne
+-->
+<html>
+<head>
+
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+   <title>Signin Demo</title>
+
+   <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+   <link rel="import" href="../lib/elements/signin-interface.html">
+</head>
+<body>
+<style>
+   signin-interface {
+      background: url(background.png) no-repeat;
+      background-position-x: 50%;
+   }
+</style>
+<signin-interface id="interface" action="response.json">
+   <img src="hero.svg" slot="hero">
+   <a href="#" slot="lost" onclick="toast(this)">lost password ?</a>
+</signin-interface>
+
+<script>
+   document.querySelector('#interface')._setMethod('GET');
+   function toast (a) {
+     Valentin.toast(a, 'yet to be implemented.', false);
+   }
+</script>
+</body>
+</html>
