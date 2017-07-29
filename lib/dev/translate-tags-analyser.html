@@ -1,0 +1,73 @@
+<!--
+@license
+Copyright (c) Valentin Degenne
+-->
+
+
+<link rel="import" href="./dev-boot.html">
+
+
+<script>
+(function () {
+  'use strict';
+
+  let foundTags = [];
+  const excludedNodeNames = [
+    'STYLE',
+    'CUSTOM-STYLE'
+  ];
+
+
+  const analyseElementRecursive = function (element) {
+
+    let found;
+
+    if (element.nodeType === 3 ||
+       excludedNodeNames.indexOf(element.nodeName) >= 0) {
+      return;
+    }
+
+     /* if it has a shadowRoot */
+    if (element.shadowRoot) {
+      analyseElementRecursive(element.shadowRoot);
+      return;
+    }
+
+     /* if it's a slot, we take the assignedNodes */
+    if (element.nodeName === 'SLOT') {
+      element.assignedNodes().forEach(n => {
+        analyseElementRecursive(n);
+      });
+    }
+    else {
+      Array.prototype.forEach.call(element.children, c => {
+        analyseElementRecursive(c);
+      });
+    }
+
+
+    if (found = /(TR\d+)(\s|$)/.exec(element.classList)) {
+      foundTags.push(found[0]);
+    }
+  };
+
+
+  const translateTagsAnalyser = function (from) {
+
+    // empty the previous search
+    foundTags = [];
+
+
+    if (from === undefined) {
+      from = document.body;
+    }
+
+    analyseElementRecursive(from);
+
+    console.log(foundTags);
+  };
+
+
+  window.Vcms.Dev.translateTagsAnalyser = translateTagsAnalyser;
+})();
+</script>
