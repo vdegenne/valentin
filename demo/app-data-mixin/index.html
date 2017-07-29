@@ -1,0 +1,86 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2017 Valentin Degenne
+-->
+<html>
+<head>
+
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+   <title>AppDataMixin Demo</title>
+
+   <script src="../../../webcomponentsjs/webcomponents-loader.js"></script>
+   <link rel="import" href="../../lib/mixins/app-data-mixin.html">
+</head>
+<body>
+
+<dom-module id="element-style">
+   <template>
+      <style>
+         :host {
+            display: block;
+            border: 1px solid grey;
+            padding: 10px;
+            border-radius: 3px;
+            background-color: grey;
+            color: #fff;
+            margin: 0 0 20px 0;
+         }
+      </style>
+   </template>
+</dom-module>
+
+
+<p style="margin:0 0 30px 0">Both elements are distinct from each other. But they share the same data.</p>
+<span>element 1</span>
+<element-1></element-1>
+<span>element 2</span>
+<element-2></element-2>
+
+<dom-module id="element-1">
+   <template>
+      <style include="element-style"></style>
+      <span>{{AppData.shop.name}}</span>
+      <button on-click="_changeData" style="float:right">change data</button>
+   </template>
+   <script>
+     class Element1 extends Valentin.AppDataElement {
+       static get is () { return 'element-1'; }
+
+       connectedCallback () {
+         super.connectedCallback();
+         this.setAppData('shop.name', 'the shop online');
+       }
+
+       _changeData () {
+         this.setAppData('shop', {name: "new shop name"});
+       }
+     }
+     customElements.define(Element1.is, Element1);
+   </script>
+</dom-module>
+<dom-module id="element-2">
+   <template>
+      <style include="element-style"></style>
+      <span>{{AppData.shop.name}}</span>
+   </template>
+   <script>
+     class Element2 extends Valentin.AppDataElement {
+       static get is () { return 'element-2'; }
+
+       static get observers () {
+         return ['_dataChanged(AppData.shop.name)']
+       }
+
+       _dataChanged () {
+         console.log('the shopname has changed');
+       }
+     }
+     customElements.define(Element2.is, Element2);
+   </script>
+</dom-module>
+</body>
+</html>
