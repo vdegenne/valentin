@@ -1,4 +1,4 @@
-<link rel="import" href="../../valentin.html">
+<link rel="import" href="../../vcms-polymer.html">
 <link rel="import" href="../../../iron-form/iron-form.html">
 <link rel="import" href="../../../paper-input/paper-input.html">
 <link rel="import" href="../../../paper-card/paper-card.html">
@@ -125,9 +125,9 @@
             handleAs: 'json'
           };
 
-          Valentin.request(options, (request, feedback) => {
+          Vcms.request(options, (request, feedback) => {
 
-            Valentin.toast(this.$.toaster, feedback.message, feedback.success);
+            Vcms.toast(this.$.toaster, feedback.message, feedback.success);
 
             if (feedback.success) {
               window.location.href = this.queryString.continue;

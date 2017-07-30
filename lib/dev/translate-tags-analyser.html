@@ -27,14 +27,20 @@ Copyright (c) Valentin Degenne
       return;
     }
 
+
      /* if it has a shadowRoot */
     if (element.shadowRoot) {
       analyseElementRecursive(element.shadowRoot);
       return;
     }
-
+    else if (element.content &&
+       (element.content.nodeType === element.DOCUMENT_FRAGMENT_NODE)) {
+      Array.prototype.forEach.call(element.content.children, c => {
+        analyseElementRecursive(c);
+      });
+    }
      /* if it's a slot, we take the assignedNodes */
-    if (element.nodeName === 'SLOT') {
+    else if (element.nodeName === 'SLOT') {
       element.assignedNodes().forEach(n => {
         analyseElementRecursive(n);
       });

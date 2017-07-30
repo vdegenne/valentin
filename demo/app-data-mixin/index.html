@@ -47,7 +47,7 @@ Copyright (c) 2017 Valentin Degenne
       <button on-click="_changeData" style="float:right">change data</button>
    </template>
    <script>
-     class Element1 extends Valentin.AppDataElement {
+     class Element1 extends Vcms.AppDataElement {
        static get is () { return 'element-1'; }
 
        connectedCallback () {
@@ -68,7 +68,7 @@ Copyright (c) 2017 Valentin Degenne
       <span>{{AppData.shop.name}}</span>
    </template>
    <script>
-     class Element2 extends Valentin.AppDataElement {
+     class Element2 extends Vcms.AppDataElement {
        static get is () { return 'element-2'; }
 
        static get observers () {

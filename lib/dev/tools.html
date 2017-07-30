@@ -1,0 +1,24 @@
+<!--
+@license
+Copyright (c) 2017 Valentin Degenne
+-->
+
+<link rel="import" href="dev-boot.html">
+
+<script>
+(function () {
+  'use strict';
+
+  Vcms.get = function (url) {
+    Vcms.request(url, (request, feedback) => {
+      console.log(feedback);
+    });
+  };
+  Vcms.post = function (url, body) {
+    Vcms.request({url: url, body: body}, (request, feedback) => {
+      console.log(feedback);
+    });
+  };
+
+})();
+</script>
