@@ -1,0 +1,125 @@
+<link rel="import" href="boot.html">
+
+
+<script>
+  (function () {
+
+
+    let translations;
+    let forEach = Array.prototype.forEach;
+    let skipNodeNames = [
+    'STYLE',
+    'CUSTOM-STYLE',
+    'LINK',
+    'SCRIPT'
+    ];
+
+    function translate(element) {
+
+      if (element.nodeType === 3 ||
+      skipNodeNames.indexOf(element.nodeName) >= 0) {
+        return;
+      }
+
+      let children;
+
+      if (element.shadowRoot) {
+        children = element.shadowRoot.children;
+      }
+      if (element.nodeName === 'SLOT') {
+        children = element.assignedNodes();
+      }
+      if (element.children.length > 0) {
+        children = element.children;
+      }
+
+      if (children) {
+        forEach.call(children, c => {
+          translate(c);
+        });
+      }
+
+
+      let found;
+      if (found = /(TR\d+)(\s|$)/.exec(element.classList.value)) {
+
+        let founds = translations.filter(function (t) {
+          return (`TR${t.tr_id}` == found[1]);
+        });
+
+        if (founds.length > 0) {
+          if (founds.length > 1) {
+            console.warn('several translations for the same tag (taking the first found).');
+          }
+          element.innerHTML = founds[0].translation;
+        }
+      }
+    }
+
+
+    Vcms.translatePage = function (page, lang = null, from = document.body) {
+
+      let uri = `/translations?pagename=${page}`;
+      if (lang !== null) {
+        uri += `&lang=${lang}`;
+      }
+
+
+      let presolve, preject;
+      let promise = new Promise((resolve, reject) => {
+        presolve = resolve;
+        preject = reject;
+      });
+
+      Vcms.request(uri, (request, feedback) => {
+        if (feedback.success) {
+          translations = feedback.data.translations;
+          translate(from, feedback.data.translations);
+          window.dispatchEvent(new CustomEvent('app-translate', {
+            bubbles: true,
+            detail: { lang: feedback.data.lang, translations: translations }
+          }));
+          Vcms.translations.currentLang = lang;
+          presolve();
+        }
+        else {
+          preject();
+        }
+      });
+
+      return promise;
+    }
+
+
+    Vcms.startTranslation = function () {
+
+      Vcms.translations = {};
+
+      Vcms.request('/translations?action=informations', (request, feedback) => {
+        if (feedback.success) {
+          let pathcrumbs = window.location.pathname.substr(1).split('/');
+
+          // if the language information is in the url, we use that
+          // language instead.
+          let lang =
+          (feedback.data.availableLangs.indexOf(pathcrumbs[0]) > -1)
+          ? pathcrumbs.shift()
+          : null;
+
+          if (lang === null) {
+            lang = feedback.data.userLang;
+          }
+          Vcms.translatePage(pathcrumbs.join('/'), lang);
+
+          Vcms.translations = {
+            availableLangs: feedback.data.availableLangs,
+            currentLang: lang
+          };
+        }
+      });
+
+    }
+
+
+  })();
+</script>
