@@ -1,0 +1,27 @@
+<link rel="import" href="../utils/boot.html">
+
+<script>
+(function () {
+
+  'use strict';
+
+  Vcms.mixinBehaviors = (behaviors, base) => {
+
+    if (!Array.isArray(behaviors)) {
+      behaviors = [behaviors];
+    }
+
+    let extendedBase = (behaviors.shift())(base);
+    for (b of behaviors) {
+      extendedBase = b(extendedBase);
+    }
+
+    return class extends extendedBase {}
+
+  }
+
+  // alias
+  Vcms.attachWidgets = Vcms.mixinBehaviors;
+
+})();
+</script>

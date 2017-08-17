@@ -1,0 +1,98 @@
+<link rel="import" href="../utils/boot.html">
+
+<script>
+  (function () {
+
+     /* monostate */
+    let _data = undefined;
+    let _els = [];
+
+    let _setBut = (except => {
+      for (e of _els) {
+        if (e !== except) {
+          e.AppData = _data;
+        }
+      };
+    });
+
+    let _notifyAll = (path => {
+      for (e of _els) {
+        e.notify(path);
+      }
+    });
+
+
+    Vcms.AppElement = class extends Polymer.Element {
+
+      static get properties () { return {
+
+        AppData: {
+          type: Object
+        }
+      }}
+
+      notify (path) {
+        this.notifyPath(`AppData.${path}`);
+      }
+
+      connectedCallback () {
+        super.connectedCallback();
+        this.AppData = _data;
+        _els.push(this);
+      }
+
+      disconnectedCallback () {
+        super.disconnectedCallback();
+        _els.splice(_els.indexOf(this), 1);
+      }
+
+
+      setAppData (path, value) {
+
+        const pathcrumbs = path.split('.');
+        let crumb = this.AppData;
+        let appData, firstTimeCall = false;
+
+        if (!this.AppData) {
+          appData = {};
+          crumb = appData;
+          firstTimeCall = true;
+        }
+
+        for (let i = 0; i < pathcrumbs.length; ++i)
+        {
+          const index = pathcrumbs[i];
+
+          if (i === pathcrumbs.length - 1) {
+            crumb[index] = value;
+            break;
+          }
+
+          if (!crumb) {
+            crumb = {};
+          }
+          if (crumb[index] === undefined) {
+            crumb[index] = {};
+          }
+          crumb = crumb[index];
+        }
+
+        if (this.AppData === undefined) {
+          this.AppData = appData;
+        }
+
+        _data = this.AppData;
+
+        _setBut(this);
+        /* don't notify if the AppData was previously undefined
+         * because the AppElement's will get notify from the
+         * previously called function */
+        if (!firstTimeCall) {
+          _notifyAll(path);
+        }
+      }
+    };
+
+
+  })();
+</script>
