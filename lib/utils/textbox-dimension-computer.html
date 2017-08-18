@@ -1,0 +1,32 @@
+<link rel="import" href="./boot.html">
+
+<script>
+(function () {
+
+  'use strict';
+
+  /**
+   * This function calculates the client Dimensions
+   * of an element even in the case its original
+   * dimensions were altered.
+   */
+  Vcms.textboxDimensionCompute = function (s) {
+    let dim;
+    let c = s.cloneNode();
+    c.style.height = 'auto';
+/*     c.style.width = `calc(${s.clientWidth}px - ${s.style.paddingLeft}px - ${s.style.paddingRight}px)`;
+    c.style.paddingTop = s.style.paddingTop;
+    c.style.paddingBottom = s.style.paddingBottom; */
+    c.style.margin = s.style.margin;
+    c.style.opacity = 0;
+    c.style.position = 'absolute';
+    c.style.backgroundColor = 'red';
+    c.innerHTML = s.innerHTML;
+    s.parentElement.insertBefore(c, s);
+    dim = {w: c.clientWidth, h: c.clientHeight};
+    s.parentElement.removeChild(c);
+    return dim;
+  }
+
+})();
+</script>
