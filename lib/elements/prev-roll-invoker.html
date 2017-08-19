@@ -40,10 +40,16 @@
     connectedCallback() {
 
       _els.push(this);
-      /* get the previous element height */
-      this._recalcPrev();
 
-      this.prev.style.overflow = 'hidden';
+      /* we delay to be sure the previous element is paint
+       * before trying to compute sizes */
+      setTimeout(_ => {
+        /* get the previous element height */
+        this._recalcPrev();
+        this.prev.style.overflow = 'hidden';
+        this.prev.style.transition = 'height .2s ease-in-out';
+      }, 0);
+
     }
 
     disconnectedCallback() {
@@ -65,7 +71,7 @@
     _recalcPrev() {
       this.prev = this.previousElementSibling;
 
-      let dim = Www.textboxDimensionCompute(this.prev);
+      let dim = Vcms.textboxDimensionCompute(this.prev);
       this.prevHeight = dim.h;
 
       this._processPrevHeight();
@@ -77,7 +83,7 @@
       this.shadowRoot.innerHTML = `
                   <style>
                      :host {
-                        padding: 10px 15px;
+                        padding: 1px 9px;
                         cursor: pointer;
                         font-family: "Fira Code", sans-serif;
                         display: flex;

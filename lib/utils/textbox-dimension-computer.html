@@ -20,11 +20,11 @@
     c.style.margin = s.style.margin;
     c.style.opacity = 0;
     c.style.position = 'absolute';
-    c.style.backgroundColor = 'red';
     c.innerHTML = s.innerHTML;
-    s.parentElement.insertBefore(c, s);
+    // using parentNode (shadowRoot supported)
+    s.parentNode.insertBefore(c, s);
     dim = {w: c.clientWidth, h: c.clientHeight};
-    s.parentElement.removeChild(c);
+    s.parentNode.removeChild(c);
     return dim;
   }
 
