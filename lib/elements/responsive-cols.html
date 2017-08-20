@@ -1,0 +1,175 @@
+<link rel="import" href="../utils/boot.html">
+
+<script>
+(function () {
+  'use strict';
+
+  const _els = [];
+  const _resizeAll = () => {
+    for (let _el of _els) {
+      _el.buildMediaStyles();
+    }
+  }
+
+  class ResponsiveCols extends HTMLElement {
+
+    constructor() {
+      super();
+
+      this.attachShadow({ mode: 'open' });
+
+      this.paint();
+    }
+
+    connectedCallback() {  _els.push(this) }
+    disconnectedCallback() { _els.splice(_els.indexOf(this), 1) }
+
+
+    static get observedAttributes() { return [
+      'media'
+    ]}
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      switch (name) {
+        case 'media':
+          setTimeout(_ => {
+            this.buildMediaStyles();
+          }, 0);
+      }
+    }
+
+    buildMediaStyles() {
+      const medias = JSON.parse(this.getAttribute('media'));
+      const mediasArr = [];
+      this.mediastyles = '';
+
+      for (let m in medias) {
+        mediasArr.push([m, medias[m]]);
+      }
+
+      for (let m of mediasArr.reverse()) {
+        const threshold = m[0];
+        const elsPerLine = m[1];
+
+        let query;
+        if (threshold === '+') {
+          query = `min-width: ${mediasArr[1][0]}px`;
+        }
+        else {
+          query = `max-width: ${threshold}px`;
+        }
+
+        this.mediastyles += `
+          @media (${query}) {
+            ::slotted(*) {
+              flex-basis: ${100/elsPerLine}%;
+            }
+          }`;
+      }
+
+      this.paint();
+    }
+
+/*     buildMediaStyles () {
+      let nodesMargins = this.assignedNodesMargins;
+      this.mediastyles = '';
+
+      const medias = JSON.parse(this.getAttribute('media'));
+      const mediasArr = [];
+      for (let m in medias) {
+        mediasArr.push([m, medias[m]]);
+      }
+
+      for (let m of mediasArr.reverse()) {
+        const threshold = m[0];
+        const elsPerLine = m[1];
+        let query;
+
+        if (m[0] === '+') {
+          query = `min-width: ${mediasArr[1][0]}px`;
+        }
+        else {
+          query = `max-width: ${threshold}px`;
+        }
+
+        // building the media-query
+        let mediaquery = '';
+        for (let stage = 1, nstage = Math.ceil(nodesMargins.length/elsPerLine); stage <= nstage; ++stage) {
+          const start = (stage - 1) * elsPerLine;
+          const end = (stage - 1) * elsPerLine + (elsPerLine - 1);
+          /**
+           * this line gets the margins array of the elements of the current stage (line)
+           * for the current media-query.
+
+          const margins = nodesMargins.filter((n,nodeIndex) => {
+            return (nodeIndex >= start && nodeIndex <= end);
+          });
+          const readjustedEnd = (start + 1) + (margins.length - 1);
+
+
+          /**
+           * we also use the margins array as an helper for building the media-query.
+
+          const nthChilds = [];
+          for (let nth = (start + 1); nth <= readjustedEnd; ++nth) {
+            nthChilds.push(`::slotted(*:nth-child(${nth}))`);
+          }
+
+          const totalMargins = margins.reduce((acc, cur, i) => { return (acc + cur) });
+
+          mediaquery += `
+            ${nthChilds.join(', ')} {
+              width: calc(100% / ${elsPerLine} - ${totalMargins / elsPerLine}px);
+            }`;
+        }
+
+        this.mediastyles += `
+        @media (${query}) {
+          ${mediaquery}
+        }`;
+      }
+
+      this.paint();
+    }
+
+    get assignedNodesMargins() {
+      this.assignedMargins = [];
+      for (let i of this.shadowRoot.querySelector('slot').assignedNodes().filter((n, i) => {return (i%2)})) {
+        let styles = getComputedStyle(i);
+        this.assignedMargins.push(parseInt(styles.marginLeft) + parseInt(styles.marginRight));
+      }
+      return this.assignedMargins;
+    } */
+
+    paint() {
+      this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          align-items: start;
+          justify-content: center;
+        }
+        ::slotted(*) {
+          box-sizing: border-box;
+        }
+        ${this.mediastyles}
+      </style>
+      <slot></slot>
+      `;
+    }
+  }
+
+/*   let _debouncer;
+  window.addEventListener('resize', _ => {
+    _debouncer = Polymer.Debouncer.debounce(
+      _debouncer,
+      Polymer.Async.timeOut.after(1000),
+      _resizeAll
+    );
+  }); */
+
+  window.customElements.define('responsive-cols', ResponsiveCols);
+})();
+</script>

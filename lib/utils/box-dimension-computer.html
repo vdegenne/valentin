@@ -12,18 +12,32 @@
    */
   Vcms.textboxDimensionCompute = function (s) {
     let dim;
+    let styles = getComputedStyle(s);
+
     let c = s.cloneNode();
     c.style.height = 'auto';
-/*     c.style.width = `calc(${s.clientWidth}px - ${s.style.paddingLeft}px - ${s.style.paddingRight}px)`;
-    c.style.paddingTop = s.style.paddingTop;
-    c.style.paddingBottom = s.style.paddingBottom; */
-    c.style.margin = s.style.margin;
+    c.style.width = (s.clientWidth - parseInt(styles.paddingLeft) - parseInt(styles.paddingRight)) + 'px';
     c.style.opacity = 0;
     c.style.position = 'absolute';
     c.innerHTML = s.innerHTML;
+
     // using parentNode (shadowRoot supported)
     s.parentNode.insertBefore(c, s);
-    dim = {w: c.clientWidth, h: c.clientHeight};
+
+    dim = {
+      bared: {
+        w: parseInt(c.style.width),
+        h: c.clientHeight - parseInt(styles.paddingTop) - parseInt(styles.paddingBottom)
+      },
+      padded: {
+        w: c.clientWidth, h: c.clientHeight
+      },
+      marged: {
+        w: c.clientWidth + parseInt(styles.marginLeft) + parseInt(styles.marginRight),
+        h: c.clientHeight + parseInt(styles.marginTop) + parseInt(styles.marginBottom)
+      }
+    };
+
     s.parentNode.removeChild(c);
     return dim;
   }
