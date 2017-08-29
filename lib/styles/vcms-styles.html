@@ -1,18 +1,32 @@
 <dom-module id=vcms-styles>
   <template>
-  <style>
-    .buttons {
-      display: flex;
-      flex-direction: row-reverse;
-    }
-    .buttons paper-button:last-of-type {
-      margin-right: 0;
-    }
+    <style>
+      .buttons {
+        display: flex;
+        padding: 16px;
+        /* flex-direction: row-reverse; */
+      }
 
-    .common-button {
-      background-color: var(--paper-blue-500);
-      color: #fefefe;
-    }
-  </style>
+      .buttons paper-button:last-of-type {
+        margin-right: 0;
+      }
+
+      paper-dialog {
+        border-radius: 2px;
+      }
+
+      paper-dialog>h3 {
+        margin-top: 16px;
+      }
+
+      paper-dialog>* {
+        padding: 0 16px;
+      }
+
+      .common-button {
+        background-color: var(--paper-blue-500);
+        color: #fefefe;
+      }
+    </style>
   </template>
 </dom-module>
