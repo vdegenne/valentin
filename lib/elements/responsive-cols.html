@@ -1,175 +1,82 @@
-<link rel="import" href="../utils/boot.html">
+<link rel="import" href="../../../polymer/polymer-element.html">
 
-<script>
-(function () {
-  'use strict';
-
-  const _els = [];
-  const _resizeAll = () => {
-    for (let _el of _els) {
-      _el.buildMediaStyles();
-    }
-  }
-
-  class ResponsiveCols extends HTMLElement {
-
-    constructor() {
-      super();
-
-      this.attachShadow({ mode: 'open' });
-
-      this.paint();
-    }
-
-    connectedCallback() {  _els.push(this) }
-    disconnectedCallback() { _els.splice(_els.indexOf(this), 1) }
-
-
-    static get observedAttributes() { return [
-      'media'
-    ]}
-
-    attributeChangedCallback(name, oldValue, newValue) {
-      switch (name) {
-        case 'media':
-          setTimeout(_ => {
-            this.buildMediaStyles();
-          }, 0);
-      }
-    }
-
-    buildMediaStyles() {
-      const medias = JSON.parse(this.getAttribute('media'));
-      const mediasArr = [];
-      this.mediastyles = '';
-
-      for (let m in medias) {
-        mediasArr.push([m, medias[m]]);
+<dom-module id="responsive-cols">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: start;
       }
 
-      for (let m of mediasArr.reverse()) {
-        const threshold = m[0];
-        const elsPerLine = m[1];
+      ::slotted(*) {
+        box-sizing: border-box;
+      }
+    </style>
+    <slot id=slot></slot>
+  </template>
 
-        let query;
-        if (threshold === '+') {
-          query = `min-width: ${mediasArr[1][0]}px`;
-        }
-        else {
-          query = `max-width: ${threshold}px`;
-        }
+  <script>
+    class ResponsiveCols extends Polymer.Element {
 
-        this.mediastyles += `
-          @media (${query}) {
-            ::slotted(*) {
-              flex-basis: ${100/elsPerLine}%;
-            }
-          }`;
+      static get is() { return 'responsive-cols' }
+
+      static get properties() { return {
+
+        medias: {
+          type: Object,
+          reflectToAttribute: true,
+          observer: '_mediaChanged'
+        },
+
+        styletag: {
+          type: Object,
+          value: _ => { return document.createElement('style'); }
+        }
+      }}
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.shadowRoot.appendChild(this.styletag);
       }
 
-      this.paint();
-    }
+      _mediaChanged() {
+        const nodes = this.$.slot.assignedNodes();
+        const mediasArr = [];
+        let mediasString = '';
 
-/*     buildMediaStyles () {
-      let nodesMargins = this.assignedNodesMargins;
-      this.mediastyles = '';
-
-      const medias = JSON.parse(this.getAttribute('media'));
-      const mediasArr = [];
-      for (let m in medias) {
-        mediasArr.push([m, medias[m]]);
-      }
-
-      for (let m of mediasArr.reverse()) {
-        const threshold = m[0];
-        const elsPerLine = m[1];
-        let query;
-
-        if (m[0] === '+') {
-          query = `min-width: ${mediasArr[1][0]}px`;
-        }
-        else {
-          query = `max-width: ${threshold}px`;
+        for (let m in this.medias) {
+          mediasArr.push([m, this.medias[m]]);
         }
 
-        // building the media-query
-        let mediaquery = '';
-        for (let stage = 1, nstage = Math.ceil(nodesMargins.length/elsPerLine); stage <= nstage; ++stage) {
-          const start = (stage - 1) * elsPerLine;
-          const end = (stage - 1) * elsPerLine + (elsPerLine - 1);
-          /**
-           * this line gets the margins array of the elements of the current stage (line)
-           * for the current media-query.
+        for (let m of mediasArr.reverse()) {
+          const threshold = m[0];
+          const elsPerLine = m[1];
+          let query;
 
-          const margins = nodesMargins.filter((n,nodeIndex) => {
-            return (nodeIndex >= start && nodeIndex <= end);
-          });
-          const readjustedEnd = (start + 1) + (margins.length - 1);
-
-
-          /**
-           * we also use the margins array as an helper for building the media-query.
-
-          const nthChilds = [];
-          for (let nth = (start + 1); nth <= readjustedEnd; ++nth) {
-            nthChilds.push(`::slotted(*:nth-child(${nth}))`);
+          if (threshold === '+') {
+            query = `min-width: ${mediasArr[1][0]}px`;
+          }
+          else {
+            query = `max-width: ${threshold}px`;
           }
 
-          const totalMargins = margins.reduce((acc, cur, i) => { return (acc + cur) });
-
-          mediaquery += `
-            ${nthChilds.join(', ')} {
-              width: calc(100% / ${elsPerLine} - ${totalMargins / elsPerLine}px);
-            }`;
+          mediasString += `
+            @media(${query}) {
+              responsive-cols > * {
+                width: ${100 / elsPerLine}%;
+              }
+              ::slotted(*) {
+                width: ${100 / elsPerLine}%;
+              }
+            }
+          `;
         }
 
-        this.mediastyles += `
-        @media (${query}) {
-          ${mediaquery}
-        }`;
+        this.styletag.innerText = mediasString.split('\n').join('');
       }
-
-      this.paint();
     }
-
-    get assignedNodesMargins() {
-      this.assignedMargins = [];
-      for (let i of this.shadowRoot.querySelector('slot').assignedNodes().filter((n, i) => {return (i%2)})) {
-        let styles = getComputedStyle(i);
-        this.assignedMargins.push(parseInt(styles.marginLeft) + parseInt(styles.marginRight));
-      }
-      return this.assignedMargins;
-    } */
-
-    paint() {
-      this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: flex;
-          flex-direction: row;
-          flex-wrap: wrap;
-          align-items: start;
-          justify-content: center;
-        }
-        ::slotted(*) {
-          box-sizing: border-box;
-        }
-        ${this.mediastyles}
-      </style>
-      <slot></slot>
-      `;
-    }
-  }
-
-/*   let _debouncer;
-  window.addEventListener('resize', _ => {
-    _debouncer = Polymer.Debouncer.debounce(
-      _debouncer,
-      Polymer.Async.timeOut.after(1000),
-      _resizeAll
-    );
-  }); */
-
-  window.customElements.define('responsive-cols', ResponsiveCols);
-})();
-</script>
+    window.customElements.define(ResponsiveCols.is, ResponsiveCols);
+  </script>
+</dom-module>

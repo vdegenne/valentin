@@ -1,143 +1,144 @@
+<link rel="import" href="../../../polymer/polymer-element.html">
 <link rel="import" href="../utils/box-dimension-computer.html">
 
-<script>
-(function () {
+<dom-module id="prev-roll-invoker">
+  <template>
+    <style>
+      :host {
+        padding: 1px 9px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
 
-  // in order to recalculate all the previousRollInvokers.
-  let _els = [];
-  const _recalcAll = () => { for (_el of _els) {
-      _el._recalcPrev();
-  }};
+        -webkit-transition: opacity .3s;
+        -moz-transition: opacity .3s;
+        -ms-transition: opacity .3s;
+        -o-transition: opacity .3s;
+        transition: opacity .3s;
+      }
 
+      :host(:hover) {
+        opacity: 0.8;
+      }
 
-  class PreviousRollInvoker extends HTMLElement {
+      #chevron {
+        font-size: 1.3em;
+      }
 
-    static get is() { return 'prev-roll-invoker'; }
+      :host(:not([closed])) #chevron {
+        -webkit-transform: rotateZ(-90deg);
+        -moz-transform: rotateZ(-90deg);
+        -ms-transform: rotateZ(-90deg);
+        -o-transform: rotateZ(-90deg);
+        transform: rotateZ(-90deg);
+      }
 
-    static get observedAttributes() { return ['name']; }
+      #title {
+        display: flex;
+        flex-basis: 0.0000001px;
+        flex-shrink: 1;
+        flex-grow: 1;
+        flex-direction: column;
+        text-align: center;
+      }
+    </style>
+    <span id="chevron">&gt;</span>
+    <span id="title"></span>
+  </template>
 
-    constructor() {
-      super();
+  <script>
+    (function () {
 
-      this.attachShadow({mode: 'open'});
+      let _els = [];
 
-      this.addEventListener('click', e => {
-
-        /* roll or roll back ? */
-        if (this.prev.hasAttribute('rolled-up')) {
-          this.prev.removeAttribute('rolled-up');
+      const _recalcAll = () => {
+        for (_el of _els) {
+          _el._recalcPrev();
         }
-        else {
-          this.prev.setAttribute('rolled-up', '');
+      };
+
+
+      class PrevRollInvoker extends Polymer.Element {
+
+        static get is() { return 'prev-roll-invoker' }
+
+        connectedCallback() {
+          super.connectedCallback();
+          _els.push(this);
+
+          this._recalcPrev();
+          this.prev.style.overflow = 'hidden';
+          this.prev.style.transition = 'height .3s ease-in-out, padding .2s ease-in-out';
+
+          this.addEventListener('click', e => {
+
+            /* roll or roll back ? */
+            if (this.prev.hasAttribute('rolled-up')) {
+              this.prev.removeAttribute('rolled-up');
+            }
+            else {
+              this.prev.setAttribute('rolled-up', '');
+            }
+
+            this._processPrevHeight();
+          });
         }
 
-        this._processPrevHeight();
+        disconnectedCallback() {
+          super.disconnectedCallback();
+          _els.splice(_els.indexOf(this), 1);
+        }
+
+
+
+        _recalcPrev() {
+          if (this.previousElementSibling !== this.prev) {
+            this.prev = this.previousElementSibling;
+            const styles = getComputedStyle(this.prev);
+            this.prevPaddingTop = styles.paddingTop;
+            this.prevPaddingBottom = styles.paddingBottom;
+          }
+
+          let dim = Vcms.textboxDimensionCompute(this.prev);
+          this.prevHeight = dim.bared.h;
+
+          this._processPrevHeight();
+        }
+
+        _processPrevHeight() {
+          if (this.prev.hasAttribute('rolled-up')) {
+            this.prev.style.height = 0;
+            this.prev.style.paddingTop = 0;
+            this.prev.style.paddingBottom = 0;
+            this.setAttribute('closed', '');
+            this.shadowRoot.querySelector('#title').innerText = this.querySelector('[slot=closed]').innerText;
+          }
+          else {
+            this.prev.style.height = this.prevHeight + 'px';
+            this.prev.style.paddingTop = this.prevPaddingTop;
+            this.prev.style.paddingBottom = this.prevPaddingBottom;
+            this.removeAttribute('closed');
+            this.shadowRoot.querySelector('#title').innerText = this.querySelector('[slot=opened]').innerText;
+          }
+        }
+      }
+
+
+
+      let _debouncer;
+      const _debounce = (function () {
+        _debouncer = Polymer.Debouncer.debounce(
+        _debouncer,
+        Polymer.Async.timeOut.after(100),
+        _recalcAll
+        );
       });
 
-      this.paint();
-    }
-
-    connectedCallback() {
-
-      _els.push(this);
-
-      /* we delay to be sure the previous element is paint
-       * before trying to compute sizes */
-      setTimeout(_ => {
-        /* get the previous element height */
-        this._recalcPrev();
-        this.prev.style.overflow = 'hidden';
-        this.prev.style.transition = 'height .3s ease-in-out, padding .2s ease-in-out';
-      }, 0);
-
-    }
-
-    disconnectedCallback() {
-      super.disconnectedCallback();
-      _els.slice(_els.indexOf(this), 1);
-    }
-
-    _processPrevHeight() {
-      if (this.prev.hasAttribute('rolled-up')) {
-        this.prev.style.height = 0;
-        this.prev.style.paddingTop = 0;
-        this.prev.style.paddingBottom = 0;
-        this.setAttribute('closed', '');
-        this.shadowRoot.querySelector('#title').innerText = this.querySelector('[slot=closed]').innerText;
-      }
-      else {
-        this.prev.style.height = this.prevHeight + 'px';
-        this.prev.style.paddingTop = this.prevPaddingTop;
-        this.prev.style.paddingBottom = this.prevPaddingBottom;
-        this.removeAttribute('closed');
-        this.shadowRoot.querySelector('#title').innerText = this.querySelector('[slot=opened]').innerText;
-      }
-    }
-
-    _recalcPrev() {
-      if (this.previousElementSibling !== this.prev) {
-        this.prev = this.previousElementSibling;
-        const styles = getComputedStyle(this.prev);
-        this.prevPaddingTop = styles.paddingTop;
-        this.prevPaddingBottom = styles.paddingBottom;
-      }
-
-      let dim = Vcms.textboxDimensionCompute(this.prev);
-      this.prevHeight = dim.bared.h;
-
-      this._processPrevHeight();
-    }
+      window.addEventListener('resize', () => _debounce());
 
 
-    paint() {
-
-      this.shadowRoot.innerHTML = `
-                  <style>
-                     :host {
-                        padding: 1px 9px;
-                        cursor: pointer;
-                        display: flex;
-                        flex-direction: row;
-                        align-items: center;
-
-                        -webkit-transition: opacity .3s;-moz-transition: opacity .3s;-ms-transition: opacity .3s;-o-transition: opacity .3s;transition: opacity .3s;
-                     }
-                     :host(:hover) {
-                        opacity: 0.8;
-                     }
-
-                     #chevron {
-                        font-size: 1.3em;
-                     }
-                     :host(:not([closed])) #chevron {
-                        -webkit-transform: rotateZ(-90deg);-moz-transform: rotateZ(-90deg);-ms-transform: rotateZ(-90deg);-o-transform: rotateZ(-90deg);transform: rotateZ(-90deg);
-                     }
-                     #title {
-                        display: flex;
-                        flex-basis: 0.0000001px;
-                        flex-shrink: 1;
-                        flex-grow: 1;
-                        flex-direction: column;
-                        text-align: center;
-                     }
-                  </style>
-                  <span id="chevron">&gt;</span>
-                  <span id="title"></span>`;
-
-    }
-  }
-
-  let _debouncer;
-  const _debounce = (function () {
-    _debouncer = Polymer.Debouncer.debounce(
-       _debouncer,
-       Polymer.Async.timeOut.after(100),
-       _recalcAll
-    );
-  });
-
-  window.addEventListener('resize', () => _debounce());
-  customElements.define(PreviousRollInvoker.is, PreviousRollInvoker);
-
-})();
-</script>
+      window.customElements.define(PrevRollInvoker.is, PrevRollInvoker);
+    })();
+  </script>
+</dom-module>
