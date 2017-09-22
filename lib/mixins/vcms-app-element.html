@@ -1,98 +1,72 @@
 <link rel="import" href="../utils/boot.html">
 
 <script>
-  (function () {
-
-     /* monostate */
-    let _data = undefined;
-    let _els = [];
-
-    let _setBut = (except => {
-      for (e of _els) {
-        if (e !== except) {
-          e.AppData = _data;
-        }
-      };
-    });
-
-    let _notifyAll = (path => {
-      for (e of _els) {
-        e.notify(path);
-      }
-    });
+(function () {
 
 
-    Vcms.AppElement = class extends Polymer.Element {
-
-      static get properties () { return {
-
-        AppData: {
-          type: Object
-        }
-      }}
-
-      notify (path) {
-        this.notifyPath(`AppData.${path}`);
-      }
-
-      connectedCallback () {
-        super.connectedCallback();
-        this.AppData = _data;
-        _els.push(this);
-      }
-
-      disconnectedCallback () {
-        super.disconnectedCallback();
-        _els.splice(_els.indexOf(this), 1);
-      }
+  let _data = {};
+  let registered = [];
 
 
-      setAppData (path, value) {
+  const _applyData = () => {
+    for (r of registered) {
+      r.data = _data;
+    }
+  }
 
-        const pathcrumbs = path.split('.');
-        let crumb = this.AppData;
-        let appData, firstTimeCall = false;
+  const _notifyAll = (path) => {
+    for (r of registered) {
+      r.notify(path);
+    }
+  }
 
-        if (!this.AppData) {
-          appData = {};
-          crumb = appData;
-          firstTimeCall = true;
-        }
 
-        for (let i = 0; i < pathcrumbs.length; ++i)
-        {
-          const index = pathcrumbs[i];
+  Vcms.AppElement = class extends Polymer.Element {
 
-          if (i === pathcrumbs.length - 1) {
-            crumb[index] = value;
-            break;
-          }
+    static get properties() {
+      return {
 
-          if (!crumb) {
-            crumb = {};
-          }
-          if (crumb[index] === undefined) {
-            crumb[index] = {};
-          }
-          crumb = crumb[index];
-        }
-
-        if (this.AppData === undefined) {
-          this.AppData = appData;
-        }
-
-        _data = this.AppData;
-
-        _setBut(this);
-        /* don't notify if the AppData was previously undefined
-         * because the AppElement's will get notify from the
-         * previously called function */
-        if (!firstTimeCall) {
-          _notifyAll(path);
+        data: {
+          type: Object,
+          value: _data
         }
       }
-    };
+    }
 
 
-  })();
+    connectedCallback() {
+      super.connectedCallback();
+      registered.push(this);
+    }
+
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      registered.splice(registered.indexOf(this), 1);
+    }
+
+    notify(path) {
+      this.notifyPath(`data.${path}`);
+    }
+
+    setData(path, value) {
+
+      const crumbs = path.split('.');
+      let currentCrumb = this.data;
+
+      let i, count;
+      for (i = 0, count = crumbs.length; i < count - 1; ++i) {
+        if (currentCrumb[crumbs[i]] === undefined) {
+          currentCrumb[crumbs[i]] = {};
+        }
+        currentCrumb = currentCrumb[crumbs[i]];
+      }
+
+      currentCrumb[crumbs[i]] = value;
+
+      _notifyAll(path);
+
+    }
+  }
+
+})();
 </script>

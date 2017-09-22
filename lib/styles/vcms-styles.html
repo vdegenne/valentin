@@ -1,3 +1,5 @@
+<link rel="import" href="../../../iron-flex-layout/iron-flex-layout.html">
+
 <dom-module id=vcms-styles>
   <template>
     <style>
@@ -29,10 +31,47 @@
       }
 
       .container {
-        max-width: 1012px;
+        max-width: 1280px;
         margin: 0 auto;
         padding: 0 16px;
         flex-basis: 100%;
+      }
+
+      .toolbar {
+        height: 56px;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        background: #f5f5f5;
+        padding: 0 14px;
+        white-space: nowrap;
+      }
+
+      table {
+        width: 100%;
+        text-align: left;
+        border-spacing: 0;
+        border-collapse: separate;
+      }
+      table>thead th {
+        color: rgba(0,0,0,0.64);
+        font-size: 12px;
+        background: #f5f5f5;
+        border-bottom: 1px solid rgba(0,0,0,0.12);
+        padding: 8px 24px;
+        font-weight: 500;
+      }
+      table>tbody td {
+        color: rgba(0,0,0,0.54);
+        font-size: 13px;
+        line-height: 16px;
+        padding: 0;
+        border-bottom: 1px solid rgba(0,0,0,0.08);
+      }
+      .cell-wrapper {
+        width: inherit;
+        position: relative;
+        padding: 10px 24px;
+        overflow: auto;
       }
     </style>
   </template>

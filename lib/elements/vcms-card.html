@@ -1,0 +1,27 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="vcms-card">
+  <template>
+    <style>
+      :host {
+        border-radius: 2px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2), 0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12);
+        @apply --layout-vertical;
+
+        background-color: rgb(255,255,255);
+        color: rgba(0,0,0,0.87);
+      }
+    </style>
+    <slot></slot>
+  </template>
+
+  <script>
+  class VcmsCard extends Polymer.Element {
+
+    static get is() { return 'vcms-card' }
+
+
+  }
+  window.customElements.define(VcmsCard.is, VcmsCard);
+  </script>
+</dom-module>
