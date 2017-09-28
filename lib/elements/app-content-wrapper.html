@@ -1,0 +1,33 @@
+<dom-module id="app-content-wrapper">
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+
+    <slot></slot>
+  </template>
+  <script>
+  class AppContentWrapper extends Polymer.Element {
+
+    static get is () { return 'app-content-wrapper'; }
+
+    static get properties() { return {
+      maxWidth: {
+        type: Number,
+        value: 700,
+        reflectToAttribute: true,
+        observer: '_maxWidthChanged'
+      }
+    }}
+
+    _maxWidthChanged() {
+      this.style.maxWidth = `${this.maxWidth}px`;
+    }
+  }
+  customElements.define(AppContentWrapper.is, AppContentWrapper);
+  </script>
+</dom-module>
