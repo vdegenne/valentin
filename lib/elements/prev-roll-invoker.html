@@ -1,20 +1,21 @@
 <link rel="import" href="../../../polymer/polymer-element.html">
 <link rel="import" href="../utils/box-dimension-computer.html">
 
+
 <dom-module id="prev-roll-invoker">
   <template>
     <style>
       :host {
-        padding: 1px 9px;
-        cursor: pointer;
         display: flex;
         flex-direction: row;
         align-items: center;
 
-        -webkit-transition: opacity .3s;
-        -moz-transition: opacity .3s;
-        -ms-transition: opacity .3s;
-        -o-transition: opacity .3s;
+        min-height: 32px;
+        padding: 0 15px;
+
+        background: #ffecb3;
+        cursor: pointer;
+
         transition: opacity .3s;
       }
 
@@ -22,11 +23,13 @@
         opacity: 0.8;
       }
 
-      #chevron {
+      [chevron] {
+        font-family: monospace;
         font-size: 1.3em;
+        margin: 0 10px 0 0;
       }
 
-      :host(:not([closed])) #chevron {
+      :host(:not([closed])) [chevron] {
         -webkit-transform: rotateZ(-90deg);
         -moz-transform: rotateZ(-90deg);
         -ms-transform: rotateZ(-90deg);
@@ -34,111 +37,113 @@
         transform: rotateZ(-90deg);
       }
 
-      #title {
-        display: flex;
-        flex-basis: 0.0000001px;
-        flex-shrink: 1;
-        flex-grow: 1;
-        flex-direction: column;
-        text-align: center;
-      }
     </style>
-    <span id="chevron">&gt;</span>
-    <span id="title"></span>
+
+    <span chevron>&gt;</span>
+    <div hidden=[[!closed]]>
+      <slot name=closed-title></slot>
+    </div>
+    <div hidden=[[closed]]>
+      <slot name=opened-title></slot>
+    </div>
+
   </template>
 
+
   <script>
-    (function () {
+  (function () {
 
-      let _els = [];
+    const candidates = [];
 
-      const _recalcAll = () => {
-        for (_el of _els) {
-          _el._recalcPrev();
+
+    class PrevRollInvoker extends Polymer.Element {
+
+      static get is() { return 'prev-roll-invoker' }
+
+      static get properties() { return {
+        closed: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true
         }
-      };
+      }}
+      connectedCallback() {
+        super.connectedCallback();
+        candidates.push(this);
 
+        this._recalcPrev();
+        this.prev.style.overflow = 'hidden';
+        this.prev.style.transition = 'height .3s ease-in-out, padding .2s ease-in-out';
 
-      class PrevRollInvoker extends Polymer.Element {
+        this.addEventListener('click', e => {
 
-        static get is() { return 'prev-roll-invoker' }
-
-        connectedCallback() {
-          super.connectedCallback();
-          _els.push(this);
-
-          this._recalcPrev();
-          this.prev.style.overflow = 'hidden';
-          this.prev.style.transition = 'height .3s ease-in-out, padding .2s ease-in-out';
-
-          this.addEventListener('click', e => {
-
-            /* roll or roll back ? */
-            if (this.prev.hasAttribute('rolled-up')) {
-              this.prev.removeAttribute('rolled-up');
-            }
-            else {
-              this.prev.setAttribute('rolled-up', '');
-            }
-
-            this._processPrevHeight();
-          });
-        }
-
-        disconnectedCallback() {
-          super.disconnectedCallback();
-          _els.splice(_els.indexOf(this), 1);
-        }
-
-
-
-        _recalcPrev() {
-          if (this.previousElementSibling !== this.prev) {
-            this.prev = this.previousElementSibling;
-            const styles = getComputedStyle(this.prev);
-            this.prevPaddingTop = styles.paddingTop;
-            this.prevPaddingBottom = styles.paddingBottom;
-          }
-
-          let dim = Vcms.textboxDimensionCompute(this.prev);
-          this.prevHeight = dim.bared.h;
-
-          this._processPrevHeight();
-        }
-
-        _processPrevHeight() {
+          /* roll or roll back ? */
           if (this.prev.hasAttribute('rolled-up')) {
-            this.prev.style.height = 0;
-            this.prev.style.paddingTop = 0;
-            this.prev.style.paddingBottom = 0;
-            this.setAttribute('closed', '');
-            this.shadowRoot.querySelector('#title').innerText = this.querySelector('[slot=closed]').innerText;
+            this.prev.removeAttribute('rolled-up');
           }
           else {
-            this.prev.style.height = this.prevHeight + 'px';
-            this.prev.style.paddingTop = this.prevPaddingTop;
-            this.prev.style.paddingBottom = this.prevPaddingBottom;
-            this.removeAttribute('closed');
-            this.shadowRoot.querySelector('#title').innerText = this.querySelector('[slot=opened]').innerText;
+            this.prev.setAttribute('rolled-up', '');
           }
-        }
+
+          this._processPrevHeight();
+        });
+      }
+
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        candidates.splice(candidates.indexOf(this), 1);
       }
 
 
+      _recalcPrev() {
+        if (this.previousElementSibling !== this.prev) {
+          this.prev = this.previousElementSibling;
+          const styles = getComputedStyle(this.prev);
+          this.prevPaddingTop = styles.paddingTop;
+          this.prevPaddingBottom = styles.paddingBottom;
+        }
 
-      let _debouncer;
-      const _debounce = (function () {
-        _debouncer = Polymer.Debouncer.debounce(
-        _debouncer,
-        Polymer.Async.timeOut.after(100),
-        _recalcAll
-        );
-      });
+        let dim = Vcms.textboxDimensionCompute(this.prev);
+        this.prevHeight = dim.bared.h;
 
-      window.addEventListener('resize', () => _debounce());
+        this._processPrevHeight();
+      }
+
+      _processPrevHeight() {
+        if (this.prev.hasAttribute('rolled-up')) {
+          this.prev.style.height = 0;
+          this.prev.style.paddingTop = 0;
+          this.prev.style.paddingBottom = 0;
+          this.closed = true;
+//          this.setAttribute('closed', '');
+//          this.shadowRoot.querySelector('#title').innerText = this.querySelector('[slot=closed-title]').innerText;
+        }
+        else {
+          this.prev.style.height = this.prevHeight + 'px';
+          this.prev.style.paddingTop = this.prevPaddingTop;
+          this.prev.style.paddingBottom = this.prevPaddingBottom;
+          this.closed = false;
+//          this.removeAttribute('closed');
+//          this.shadowRoot.querySelector('#title').innerText = this.querySelector('[slot=opened-title]').innerText;
+        }
+      }
+    }
+
+    window.customElements.define(PrevRollInvoker.is, PrevRollInvoker);
 
 
-      window.customElements.define(PrevRollInvoker.is, PrevRollInvoker);
-    })();
+    let _debouncer;
+    window.addEventListener('resize', _ => {
+      _debouncer = Polymer.Debouncer.debounce(
+         _debouncer,
+         Polymer.Async.timeOut.after(100),
+         _ => {
+           for (c of candidates) {
+             c._recalcPrev();
+           }
+         })
+    });
+
+  })();
   </script>
 </dom-module>
