@@ -10,61 +10,62 @@ This code may only be used under the BSD style license found at https://github.c
 
   'use strict';
 
+
   window.Vcms = {
 
-    request: function (optionsArg, fn)
-    {
-      let r = document.createElement('iron-request');
-      r.completes.then(function (request) {
-        let feedback = request.response;
-        fn(request, feedback);
-      }).catch(err => console.log(err));
+    request: function (optionsArgs) {
+
+      return new Promise((resolve, reject) => {
+
+        const request = document.createElement('iron-request')
+           ,  options = {};
+
+        request.completes
+           .then((request) => resolve(request.response, request))
+           .catch((response) => reject(response, request));
 
 
-      let options = { /* with defaults */
-        method: 'GET',
-        handleAs: 'json',
-        headers: {}
-      };
+        // defaults
+        options.method = 'GET';
+        options.handleAs = 'json';
+        options.headers = {};
 
-      switch (typeof optionsArg)
-      {
-        case 'string':
-        options.url = optionsArg;
-        break;
 
-        case 'object':
-        for (var o in optionsArg) {
+        if (typeof optionsArgs === 'string') {
+          options.url = optionsArgs;
+        }
 
-          if (o === 'headers') {
-            options[o] = options[o] || {};
-            for (var so in optionsArg[o]) {
-              options[o][so] = optionsArg[o][so]
+        if (typeof optionsArgs === 'object') {
+            let a;
+
+            for (a of Object.keys(optionsArgs)) {
+
+              if (a === 'headers') {
+                let h;
+
+                for (h of Object.keys(optionsArgs.headers)) {
+                  options.headers[h.toLowerCase()] = optionsArgs.headers[h];
+                }
+              }
+              else {
+                options[a] = optionsArgs[a];
+              }
             }
-            continue;
+
+          if (!options.headers['content-type']
+             && (options.method.toLowerCase() in {post:undefined, put:undefined})
+             && !(options.body instanceof FormData))
+          {
+            options.headers['content-type'] = 'application/x-www-form-urlencoded';
           }
-          options[o] = optionsArg[o];
         }
 
-        let newHeaders = Object.create(null);
-        for (var key in options.headers) {
-          newHeaders[key.toLowerCase()] = options.headers[key];
-        }
-        let headers = options.headers = newHeaders;
+        // send the request
+        request.send(options);
 
-        if (!headers['content-type']
-        && ['post', 'put'].indexOf(options.method.toLowerCase()) > -1
-        &&  !(options.body instanceof FormData))
-        {
-          options.headers['content-type'] = 'application/x-www-form-urlencoded';
-        }
+      })
 
-        break;
-      }
-
-      r.send(options);
     },
-
 
 
     toast: function (element, message, success) {
@@ -74,6 +75,7 @@ This code may only be used under the BSD style license found at https://github.c
         bubbles: true, composed: true})
       )
     }
+
   }
 
 })();
