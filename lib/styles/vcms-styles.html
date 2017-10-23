@@ -37,13 +37,28 @@
         flex-basis: 100%;
       }
 
+      /* toolbar */
       .toolbar {
-        height: 56px;
         @apply --layout-horizontal;
         @apply --layout-center;
-        background: #f5f5f5;
+        height: 30px;
         padding: 0 14px;
         white-space: nowrap;
+
+        --iron-icon-height: 14px;
+        --iron-icon-width: 14px;
+      }
+      .toolbar>* {
+        margin: 0;
+      }
+      .toolbar * {
+        color: #fff !important;
+        font-weight: 100;
+        font-size: 14px;
+      }
+      .toolbar iron-icon {
+        cursor: pointer;
+        margin-left: 6px;
       }
 
       table {

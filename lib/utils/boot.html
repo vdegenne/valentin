@@ -21,7 +21,14 @@ This code may only be used under the BSD style license found at https://github.c
            ,  options = {};
 
         request.completes
-           .then((request) => resolve(request.response, request))
+           .then((request) => {
+             if (request.response.success) {
+               resolve(request.response, request);
+             }
+             else {
+               reject(request.response, request);
+             }
+           })
            .catch((response) => reject(response, request));
 
 
@@ -74,6 +81,19 @@ This code may only be used under the BSD style license found at https://github.c
         { detail: { text: message, success: success },
         bubbles: true, composed: true})
       )
+    },
+
+    nl2br: function (str) {
+      return str.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
+    },
+
+    strip: function (value) {
+      if (this.stripDiv === undefined) {
+        this.stripDiv = document.createElement('div');
+      }
+
+      this.stripDiv.innerHTML = value;
+      return this.stripDiv.innerText;
     }
 
   }
